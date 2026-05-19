@@ -23,3 +23,24 @@ jobs:
 
       - name: Build Angular App
         run: npm run build
+
+  deploy:
+    needs: frontend-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Frontend to EC2
+        uses: appleboy/ssh-action@v1.0.3
+
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+
+          script: |
+            cd ~/devops-mean/Frontend
+            git pull
+
+            cd ~/devops-mean
+            docker compose up -d --build frontend
